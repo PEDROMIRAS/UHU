@@ -1,0 +1,233 @@
+
+public interface FabricaCoches {
+    
+    CocheElectricoAbstracto CreaCocheElectrico(String marca, String modelo, int potencia);
+    CocheDieselAbstracto CreaCocheDiesel(String marca, String modelo, float cilindrada, int potencia);
+    CocheGasolinaAbstracto CreaCocheGasolina(String marca, String modelo, float cilindrada, int potencia);
+    CocheHibridoAbstracto CreaCocheHibrido(String marca, String modelo, float cilindrada, int potencia);
+}
+
+public abstract class CocheDieselAbstracto {
+    protected String marca;
+    protected String modelo;
+    protected float cilindrada;
+    protected int potencia;
+    
+    
+    public CocheDieselAbstracto(String marca, String modelo, float cilindrada, int potencia){
+        this.marca=marca;
+        this.modelo=modelo;
+        this.cilindrada=cilindrada;
+        this.potencia=potencia;
+        
+    }
+    
+    public void mostrarCaracteristicas(){}
+}
+
+public abstract class CocheElectricoAbstracto {
+    protected String marca;
+    protected String modelo;
+    protected int potencia;
+    
+    
+    public CocheElectricoAbstracto(String marca, String modelo, int potencia){
+        this.marca=marca;
+        this.modelo=modelo;
+        this.potencia=potencia;
+        
+    }
+    
+    public void mostrarCaracteristicas(){}
+}
+
+public abstract class CocheGasolinaAbstracto {
+    protected String marca;
+    protected String modelo;
+    protected float cilindrada;
+    protected int potencia;
+    
+    
+    public CocheGasolinaAbstracto(String marca, String modelo, float cilindrada, int potencia){
+        this.marca=marca;
+        this.modelo=modelo;
+        this.cilindrada=cilindrada;
+        this.potencia=potencia;
+        
+    }
+    
+    public void mostrarCaracteristicas(){}
+}
+
+public abstract class CocheHibridoAbstracto {
+    protected String marca;
+    protected String modelo;
+    protected float cilindrada;
+    protected int potencia;
+    
+    
+    public CocheHibridoAbstracto(String marca, String modelo, float cilindrada, int potencia){
+        this.marca=marca;
+        this.modelo=modelo;
+        this.cilindrada=cilindrada;
+        this.potencia=potencia;
+        
+    }
+    
+    public void mostrarCaracteristicas(){}
+}
+
+public abstract class CocheDiesel extends CocheDieselAbstracto{
+    
+    public CocheDiesel(String marca, String modelo, float cilindrada, int potencia) {
+        super(marca, modelo, cilindrada, potencia);
+    }
+    
+    @Override
+    public void mostrarCaracteristicas(){
+        System.out.println("La marca es : "+marca+" , el modelo es: "+modelo+" , la cilindrada del motor es: "+cilindrada+" ,con una potencia de "+potencia+" C.V. ");
+    }
+    
+}
+public abstract class CocheElectrico extends CocheElectricoAbstracto{
+    
+    public CocheElectrico(String marca, String modelo, int potencia) {
+        super(marca, modelo, potencia);
+    }
+    @Override
+    public void mostrarCaracteristicas(){
+        System.out.println("La marca es : "+marca+" , el modelo es: "+modelo+" ,con una potencia de "+potencia+" C.V. ");
+    }
+}
+
+public abstract class CocheGasolina extends CocheGasolinaAbstracto{
+    
+    public CocheGasolina(String marca, String modelo, float cilindrada, int potencia) {
+        super(marca, modelo, cilindrada, potencia);
+    }
+    @Override
+    public void mostrarCaracteristicas(){
+        System.out.println("La marca es : "+marca+" , el modelo es: "+modelo+" , la cilindrada del motor es: "+cilindrada+" ,con una potencia de "+potencia+" C.V. ");
+    }
+}
+
+public abstract class CocheHibrido extends CocheHibridoAbstracto{
+    
+    public CocheHibrido(String marca, String modelo, float cilindrada, int potencia) {
+        super(marca, modelo, cilindrada, potencia);
+    }
+    @Override
+    public void mostrarCaracteristicas(){
+        System.out.println("La marca es : "+marca+" , el modelo es: "+modelo+" , la cilindrada del motor es: "+cilindrada+" ,con una potencia de "+potencia+" C.V. ");
+    }
+}
+
+public abstract class FabricaLandRover implements FabricaCoches{
+
+    @Override
+    public CocheDieselAbstracto CreaCocheDiesel(String marca, String modelo, float cilindrada, int potencia) {
+        return new CocheDiesel(marca, modelo,cilindrada,potencia) {};
+        }
+
+    @Override
+    public CocheGasolinaAbstracto CreaCocheGasolina(String marca, String modelo, float cilindrada, int potencia) {
+        return new CocheGasolina(marca,modelo,cilindrada,potencia){};
+    }
+
+    
+}
+
+public abstract class FabricaTesla implements FabricaCoches{
+    
+    @Override
+    public CocheElectricoAbstracto CreaCocheElectrico(String marca, String modelo, int potencia) {
+        return new CocheElectrico(marca, modelo, potencia){};
+    }
+
+    
+}
+
+public  abstract class FabricaVW implements FabricaCoches{
+  
+    @Override
+    public CocheElectricoAbstracto CreaCocheElectrico(String marca, String modelo, int potencia) {
+        return new CocheElectrico(marca, modelo, potencia){};
+    }
+
+    @Override
+    public CocheDieselAbstracto CreaCocheDiesel(String marca, String modelo, float cilindrada, int potencia) {
+        return new CocheDiesel(marca, modelo,cilindrada,potencia) {};
+    }
+
+    @Override
+    public CocheGasolinaAbstracto CreaCocheGasolina(String marca, String modelo, float cilindrada, int potencia) {
+        return new CocheGasolina(marca,modelo,cilindrada,potencia){};
+    }
+
+    @Override
+    public CocheHibridoAbstracto CreaCocheHibrido(String marca, String modelo, float cilindrada, int potencia) {
+       return new CocheHibrido(marca, modelo, cilindrada, potencia){};
+    }
+    
+}
+
+
+interface CochePrototype extends Cloneable {
+    CochePrototype clonar();
+    void modificarAtributos(float nuevaCilindrada, int nuevaPotencia);
+    void mostrarCaracteristicas();
+}
+
+public abstract class Coche implements CochePrototype{
+    protected String marca;
+    protected String modelo;
+    protected float cilindrada;
+    protected int potencia;
+    
+    
+    public Coche(String marca, String modelo, float cilindrada, int potencia) {
+        this.marca = marca;
+        this.modelo = modelo;
+        this.cilindrada = cilindrada;
+        this.potencia = potencia;
+    }
+    
+    @Override
+    public CochePrototype clonar() {
+        try {
+            return (CochePrototype) super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
+        }
+    }
+     @Override
+    public void modificarAtributos(float nuevaCilindrada, int nuevaPotencia) {
+        this.cilindrada = nuevaCilindrada;
+        this.potencia = nuevaPotencia;
+    }
+
+    public abstract void mostrarCaracteristicas();
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+class Catalogo {
+    private List<CochePrototype> coches;
+
+    public Catalogo() {
+        this.coches = new ArrayList<>();
+    }
+
+    public void agregarCoche(CochePrototype coche) {
+        this.coches.add(coche);
+    }
+
+    public void eliminarCoche(CochePrototype coche) {
+        this.coches.remove(coche);
+    }
+
+    public List<CochePrototype> getCoches() {
+        return coches;
+    }
+}
