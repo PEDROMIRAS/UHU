@@ -1,0 +1,77 @@
+---Menu----
+
+while (true){
+        System.out.println("---MENU---");
+        System.out.println("1. Agencia");
+        System.out.println("2. Cliente");
+        System.out.println("3. Salir\n");
+        System.out.println("Seleccione una opcion: \n");
+        int opcion = scanner.nextInt();
+
+        switch (opcion) {
+            case 1:
+                System.out.println("--Menu Agencia--");
+                System.out.println("1. Crear vuelo");
+                System.out.println("2. Devolver billete");
+                System.out.println("3. Volver\n");
+                System.out.println("Seleccione una opcion: \n");
+                break;
+            case 2:
+                System.out.println("--Menu Cliente--");
+                System.out.println("1. Comprar billete");
+                System.out.println("2. Volver\n");
+                System.out.println("Seleccione una opcion: \n");
+            case 3:
+                scanner.close();
+                System.out.println("Hasta luego!\n");
+                System.exit(0);
+            default:
+            System.out.println("Opción no válida. Por favor, introduzca una opción válida.\n");
+        }
+    }
+
+
+---Main menu-----
+
+public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Agencia agencia = new Agencia();
+    
+        while (true) {
+            System.out.println("-------MENU---------");
+            System.out.println("1. Crear vuelo A318");
+            System.out.println("2. Crear vuelo A319");
+            System.out.println("3. Crear vuelo A320");
+            System.out.println("4. Crear vuelo A321");
+            System.out.println("5. Salir\n");
+            System.out.println("Introduzca la opcion deseada: ");
+            int opcion = scanner.nextInt();
+            
+             
+    
+            switch (opcion) {
+                case 1:
+                    crearVuelo(agencia, new VueloAirbusA318Factory());
+                    System.out.println("Vuelo con avion Airbus A318 creado\n");
+                    break;
+                case 2:
+                    crearVuelo(agencia, new VueloAirbusA319Factory());
+                    System.out.println("Vuelo con avion Airbus A319 creado\n");
+                    break;
+                case 3:
+                    crearVuelo(agencia, new VueloAirbusA320Factory());
+                    System.out.println("Vuelo con avion Airbus A320 creado\n");
+                    break;
+                case 4:
+                    crearVuelo(agencia, new VueloAirbusA321Factory());
+                    System.out.println("Vuelo con avion Airbus A321 creado\n");
+                    break;
+                case 5:
+                    scanner.close();
+                    System.out.println("Hasta luego!\n");
+                    System.exit(0);
+                default:
+                    System.out.println("Opción no válida. Por favor, introduzca una opción válida.\n");
+            }
+        }
+    }
