@@ -1,0 +1,163 @@
+package Pizzeria;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ *
+ * @author pmira
+ */
+class Cliente {
+    private String nombre;
+    private String direccion;
+    
+ // Base de datos simulada para almacenar los clientes
+    private static Map<String, Cliente> baseDatosClientes = new HashMap<>();
+    
+    public Cliente(String nombre, String direccion) {
+        this.nombre = nombre;
+        this.direccion = direccion;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getDireccion() {
+        return direccion;
+    }
+
+    public void setDireccion(String direccion) {
+        this.direccion = direccion;
+    }
+
+    public static boolean verificarExistencia(String nombreCliente) {
+        // Verificar si el cliente existe en la base de datos
+        return baseDatosClientes.containsKey(nombreCliente);
+    }
+
+    public static void darAltaCliente(Cliente nuevoCliente) {
+        // Dar de alta al cliente en la base de datos
+        baseDatosClientes.put(nuevoCliente.getNombre(), nuevoCliente);
+        System.out.println("Cliente " + nuevoCliente.getNombre() + " dado de alta.");
+    }
+}
+
+package Pizzeria;
+import java.util.ArrayList;
+import java.util.List;
+/**
+ *
+ * @author pmira
+ */
+
+class CatalogoPizzas {
+    private List<String> pizzas;
+
+    public CatalogoPizzas() {
+        this.pizzas = new ArrayList<>();
+        inicializarCatalogo();
+    }
+
+    private void inicializarCatalogo() {
+        pizzas.add("Peperoni");
+        pizzas.add("Cuatro Quesos");
+        pizzas.add("Barbacoa");
+        pizzas.add("Marinera");
+    }
+
+    public void mostrarCatalogo() {
+        for (String pizza : pizzas) {
+            System.out.println(pizza);
+        }
+    }
+}
+
+package Pizzeria;
+
+/**
+ *
+ * @author pmira
+ */
+public interface PizzeriaFacade {
+    void identificarCliente(String nombre, String direccion);
+    void verCatalogo();
+    void realizarPedido(String pizza);
+}
+
+package Pizzeria;
+
+import java.util.Scanner;
+
+/**
+ *
+ * @author pmira
+ */
+public class Pizzeria implements PizzeriaFacade {
+    private CatalogoPizzas catalogo;
+
+    public Pizzeria() {
+        this.catalogo = new CatalogoPizzas();
+    }
+
+    @Override
+    public void identificarCliente(String nombre, String direccion) {
+        System.out.println("Bienvenido, " + nombre + "! Direccion: " + direccion);
+    }
+
+    @Override
+    public void verCatalogo() {
+        System.out.println("Carta de Pizzas:");
+        catalogo.mostrarCatalogo();
+    }
+
+    @Override
+    public void realizarPedido(String pizza) {
+        System.out.println("Pedido realizado: " + pizza);
+    }
+    
+    // Método para verificar si el cliente existe en la base de datos
+    public boolean verificarExistenciaCliente(String nombreCliente) {
+        return Cliente.verificarExistencia(nombreCliente);
+    }
+
+    // Método para dar de alta a un nuevo cliente en la base de datos
+    public void darAltaCliente(String nombre, String direccion) {
+        Cliente nuevoCliente = new Cliente(nombre, direccion);
+        Cliente.darAltaCliente(nuevoCliente);
+    }
+
+    // Método para solicitar al usuario que identifique o registre un cliente
+    public void identificarORegistrarCliente() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("¿Eres un cliente registrado? (S/N)");
+        String respuesta = scanner.nextLine().toUpperCase();
+        if (respuesta.equals("S")) {
+            System.out.print("Ingrese su nombre: ");
+            String nombreCliente = scanner.nextLine();
+            if (verificarExistenciaCliente(nombreCliente)) {
+                identificarCliente(nombreCliente, ""); // La dirección no es necesaria si ya está registrado
+            } else {
+                System.out.println("El cliente no está registrado. Por favor, regístrese.");
+                registrarNuevoCliente();
+            }
+        } else {
+            registrarNuevoCliente();
+        }
+    }
+
+    // Método para registrar un nuevo cliente en el sistema
+    private void registrarNuevoCliente() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese su nombre: ");
+        String nombreCliente = scanner.nextLine();
+        System.out.print("Ingrese su dirección: ");
+        String direccionCliente = scanner.nextLine();
+        darAltaCliente(nombreCliente, direccionCliente);
+        identificarCliente(nombreCliente, direccionCliente);
+    }
+}
