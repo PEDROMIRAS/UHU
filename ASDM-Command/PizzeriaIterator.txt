@@ -1,0 +1,578 @@
+public interface PizzeriaFacade {
+    void identificarCliente(String nombre, String direccion);
+    void verCatalogo(String orden);
+    void realizarPedido(Cliente cliente, String pizza, double precio);
+    Cliente identificarORegistrarCliente();
+    void registrarNuevoCliente();
+    void agregarPedidoAlHistorial(String nombreCliente, Pedido pedido);
+    double obtenerPrecioPizza(String nombrePizza);
+    Pizza buscarPizza(String nombrePizza);
+    void aceptarPedido(PedidoSolicitud pedidoSolicitud);
+}
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+    public class Pizzeria implements PizzeriaFacade {
+    private CatalogoPizzas catalogo;
+    private List<Cliente> clientes;
+
+    public Pizzeria() {
+        this.catalogo = new CatalogoPizzas();
+        this.clientes = new ArrayList<>();
+    }
+
+    @Override
+    public void identificarCliente(String nombre, String direccion) {
+      if (nombre == null || nombre.isEmpty() || direccion == null || direccion.isEmpty()) {
+        System.out.println("Error: Nombre y dirección no pueden estar vacíos.");
+        return;
+    }
+       Cliente nuevoCliente = new Cliente(nombre, direccion); // Crear un nuevo cliente
+       clientes.add(nuevoCliente); // Agregar el nuevo cliente a la lista
+       System.out.println("Bienvenido, " + nombre + ". Dirección: " + direccion);
+       System.out.println("\n");
+    }
+
+    @Override
+public void verCatalogo(String orden) {
+    System.out.println("Catálogo de Pizzas:");
+    List<Pizza> pizzasOrdenadas = ordenarPizzas(catalogo.obtenerPizzas(), orden);
+    for (Pizza pizza : pizzasOrdenadas) {
+        System.out.println("Nombre: " + pizza.getNombre());
+        System.out.println("Precio: " + pizza.getPrecio());
+        pizza.mostrarIngredientes();
+        pizza.mostrarPreparacion();
+        System.out.println();
+    }
+}
+
+    private List<Pizza> ordenarPizzas(List<Pizza> pizzas, String orden) {
+        switch (orden) {
+            case "natural":
+                return pizzas;
+            case "pila":
+                return pizzas.stream().sorted(Comparator.comparing(Pizza::getNombre).reversed()).collect(Collectors.toList());
+            case "cola":
+                return pizzas.stream().sorted(Comparator.comparing(Pizza::getNombre)).collect(Collectors.toList());
+            case "ascendente":
+                return pizzas.stream().sorted(Comparator.comparingDouble(Pizza::getPrecio)).collect(Collectors.toList());
+            case "descendente":
+                return pizzas.stream().sorted(Comparator.comparingDouble(Pizza::getPrecio).reversed()).collect(Collectors.toList());
+            default:
+                System.out.println("Orden no reconocido. Mostrando en orden natural.");
+                return pizzas;
+        }
+    }
+
+    @Override
+    public void realizarPedido(Cliente cliente, String pizza, double precio) {
+    if (cliente == null) {
+        System.out.println("Error: El cliente no puede ser nulo.");
+        return;
+    }
+    if (pizza == null || pizza.isEmpty()) {
+        System.out.println("Error: El nombre de la pizza no puede estar vacío.");
+        return;
+    }
+    System.out.println("Pedido realizado: " + pizza);
+    Pedido pedido = new Pedido(pizza, precio); // Utilizar el precio proporcionado
+    cliente.agregarPedido(pedido); // Agregar el pedido al historial del cliente
+    System.out.println("\n");
+    }
+
+    // Método para solicitar al usuario que identifique o registre un cliente
+    @Override
+    public Cliente identificarORegistrarCliente() {
+    Scanner scanner = new Scanner(System.in);
+    System.out.println("¿Eres un cliente registrado? (S/N)");
+    String respuesta = scanner.nextLine().toUpperCase();
+    if (respuesta.equals("S")) {
+        System.out.print("Ingrese su nombre: ");
+        String nombreCliente = scanner.nextLine();
+        System.out.print("Ingrese su dirección: ");
+        String direccionCliente = scanner.nextLine();
+        return new Cliente(nombreCliente, direccionCliente);
+    } else if (respuesta.equals("N")) {
+        registrarNuevoCliente();
+        // Después de registrar, solicitamos la identificación nuevamente
+        return identificarORegistrarCliente();
+    } else {
+        System.out.println("Respuesta no válida. Por favor, responda con 'S' o 'N'.");
+        // Si la respuesta no es válida, solicitamos la identificación nuevamente
+        return identificarORegistrarCliente();
+    }
+}
+
+    // Método para registrar un nuevo cliente en el sistema
+    @Override
+    public void registrarNuevoCliente() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Ingrese su nombre: ");
+        String nombreCliente = scanner.nextLine();
+        System.out.print("Ingrese su direccion: ");
+        String direccionCliente = scanner.nextLine();
+        identificarCliente(nombreCliente, direccionCliente);
+    }
+    
+    public void agregarCliente(Cliente cliente) {
+        clientes.add(cliente);
+    }
+
+    public Cliente buscarCliente(String nombreCliente) {
+        for (Cliente cliente : clientes) {
+            if (cliente.getNombre().equalsIgnoreCase(nombreCliente)) {
+                return cliente;
+            }
+        }
+        return null; // Cliente no encontrado
+    }
+    
+    @Override
+    public void agregarPedidoAlHistorial(String nombreCliente, Pedido pedido) {
+        Cliente cliente=buscarCliente(nombreCliente);
+        if (cliente!=null) {
+            cliente.agregarPedido(pedido);
+            System.out.println("Pedido agregado al historial de "+nombreCliente);    
+        }else {
+            System.out.println("Cliente no encontrado.");
+        }
+    }
+
+@Override
+    public double obtenerPrecioPizza(String nombrePizza) {
+       Pizza pizza = buscarPizza(nombrePizza);
+        if (pizza != null) {
+           return pizza.getPrecio();
+        }else {
+          return -1; // Indica que la pizza no está en el catálogo
+        }
+    }
+     @Override
+    public Pizza buscarPizza(String nombrePizza) {
+       for (Pizza pizza : catalogo.obtenerPizzas()) {
+          if (pizza.getNombre().equalsIgnoreCase(nombrePizza)) {
+            return pizza;
+          }
+        }
+        return null; // La pizza no se encontró en el catálogo
+    } 
+
+  @Override
+  public void aceptarPedido(PedidoSolicitud pedidoSolicitud){
+        pedidoSolicitud.ejecutar();
+    }
+    
+}
+
+import java.util.ArrayList;
+import java.util.List;
+
+class CatalogoPizzas {
+    private List<Pizza> pizzas;
+
+    public CatalogoPizzas() {
+        this.pizzas = new ArrayList<>();
+        inicializarCatalogo();
+    }
+
+    private void inicializarCatalogo() {
+        pizzas.add(new PizzaPeperoni());
+        pizzas.add(new PizzaCuatroQuesos());
+        pizzas.add(new PizzaBarbacoa());
+        pizzas.add(new PizzaMarinera());
+    }
+    
+    public List<Pizza> obtenerPizzas() {
+        return new ArrayList<>(pizzas); // Devuelve una copia de la lista de pizzas para evitar modificaciones no deseadas
+    }
+}
+
+public interface Pizza {
+    String getNombre();
+    void mostrarIngredientes();
+    void mostrarPreparacion();
+    double getPrecio();  
+}
+
+class PizzaBarbacoa implements Pizza {
+    
+    private static final String NOMBRE = "Pizza Barbacoa";
+    private static final double PRECIO = 12.99;
+    
+    public String getNombre() {
+        return NOMBRE;
+    }
+    
+    @Override
+    public void mostrarIngredientes() {
+        System.out.println("Ingredientes de la pizza: Carne picada, cebolla, salsa de tomate , cilantro");
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        System.out.println("Preparación de la pizza: Hornear a alta temperatura");
+    }
+
+    @Override
+    public double getPrecio() {
+       return PRECIO;
+    }
+}
+
+public class PizzaCuatroQuesos implements Pizza {
+    
+    private static final String NOMBRE = "Pizza de Cuatro Quesos";
+    private static final double PRECIO = 11.99;
+
+    @Override
+    public String getNombre() {
+        return NOMBRE;
+    }
+
+    @Override
+    public void mostrarIngredientes() {
+        System.out.println("Ingredientes de la pizza: Queso mozzarella, queso parmesano, queso cheddar, queso azul");
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        System.out.println("Preparación de la pizza: Hornear a media temperatura");
+    }
+
+    @Override
+    public double getPrecio() {
+        return PRECIO;
+    }
+}
+
+class PizzaMarinera implements Pizza {
+    
+    private static final String NOMBRE = "Pizza Marinera";
+    private static final double PRECIO = 9.99;
+    
+    public String getNombre() {
+        return NOMBRE;
+    }
+    @Override
+    public void mostrarIngredientes() {
+        System.out.println("Ingredientes de la pizza: Salsa de tomate, gambas, mejillones, anchoas");
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        System.out.println("Preparación de la pizza: Hornear a media temperatura");
+    }
+
+    @Override
+    public double getPrecio() {
+       return PRECIO;
+    }
+}
+
+public class PizzaPeperoni implements Pizza{
+    private static final String NOMBRE = "Pizza Peperoni";
+    private static final double PRECIO = 10.99;
+    
+ public String getNombre() {
+        return NOMBRE;
+    }
+    @Override
+    public void mostrarIngredientes() {
+      System.out.println("Ingredientes de la pizza: Peperoni, queso, salsa de tomate"); 
+    }
+    
+    @Override
+    public void mostrarPreparacion() {
+        System.out.println("Preparación de la pizza: Hornear a alta temperatura");
+    }
+
+    @Override
+    public double getPrecio() {
+       return PRECIO;
+    }
+}
+
+abstract class PizzaDecorator implements Pizza {
+    protected Pizza pizzaDecorada;
+    
+     @Override
+    public String getNombre() {
+        return pizzaDecorada.getNombre();
+    }
+
+    public PizzaDecorator(Pizza pizzaDecorada) {
+        this.pizzaDecorada = pizzaDecorada;
+    }
+
+    @Override
+    public void mostrarIngredientes() {
+        pizzaDecorada.mostrarIngredientes();
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        pizzaDecorada.mostrarPreparacion();
+    }
+}
+
+class PeperoniDecorator extends PizzaDecorator {
+    public PeperoniDecorator(Pizza pizzaDecorada) {
+        super(pizzaDecorada);
+    }
+    
+    @Override
+    public String getNombre() {
+        return "Peperoni " + super.getNombre();
+    }
+
+    @Override
+    public void mostrarIngredientes() {
+        super.mostrarIngredientes();
+        System.out.println(" + Peperoni");
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        super.mostrarPreparacion();
+        System.out.println(" + Agregar rodajas de peperoni antes de hornear");
+    }
+
+    @Override
+    public double getPrecio() {
+        System.out.println("El coste del peperoni extra es de: ");
+        return pizzaDecorada.getPrecio() + 1.00;
+    }
+    
+}
+
+
+class QuesoExtraDecorator extends PizzaDecorator {
+    public QuesoExtraDecorator(Pizza pizzaDecorada) {
+        super(pizzaDecorada);
+    }
+    
+    @Override
+    public String getNombre() {
+        return "Queso extra " + super.getNombre(); // Agregar el nombre del decorador
+    }
+
+    @Override
+    public void mostrarIngredientes() {
+        super.mostrarIngredientes();
+        System.out.println(" + Queso extra");
+    }
+
+    @Override
+    public void mostrarPreparacion() {
+        super.mostrarPreparacion();
+        System.out.println(" + Agregar capa adicional de queso antes de hornear");
+    }
+    
+    @Override
+    public double getPrecio() {
+        System.out.println("El coste del queso extra es de: ");
+        return pizzaDecorada.getPrecio() + 0.75;
+    }
+}
+
+public class Pedido {
+    private String  pizza;
+    private double precio;
+    
+    public Pedido(String pizza, double precio){
+        this.pizza=pizza;
+        this.precio=precio;
+    }
+    
+    public String getPizza(){
+        return pizza;
+    }
+    
+    public void setPizza(String pizza){
+        this.pizza=pizza;
+    }
+    
+    public double getPrecio(){
+        return precio;
+    }
+    
+    public void setPrecio(double precio){
+        this.precio=precio;
+    }
+}
+
+public interface Iterator {
+    boolean haySiguiente();
+    Pizza siguiente();
+}
+
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+public class PizzasIterator implements Iterator{
+    private List<Pizza> pizzas;
+    private int posicion=0;
+    
+    public PizzasIterator(List<Pizza> pizzas){
+        this.pizzas=pizzas;
+    }
+
+    @Override
+    public boolean haySiguiente() {
+    return posicion < pizzas.size();
+    }
+
+    @Override
+    public Pizza siguiente() {
+        if (!haySiguiente()) {
+            throw new NoSuchElementException("No hay mas pizzas disponibles.");
+        }
+        return pizzas.get(posicion++);
+    }  
+}
+
+
+import java.util.NoSuchElementException;
+import java.util.Stack;
+
+public class PilaIterator implements Iterator{
+    private Stack<Pizza> pila;
+    
+    public PilaIterator(Stack<Pizza> pila){
+        this.pila=pila;
+    }
+
+    @Override
+    public boolean haySiguiente() {
+      return !pila.isEmpty();
+    }
+
+    @Override
+    public Pizza siguiente() {
+        if (!haySiguiente()) {
+            throw new NoSuchElementException("No hay mas pizzas disponibles");
+        }
+        return pila.pop();
+    } 
+}
+
+
+import java.util.NoSuchElementException;
+import java.util.Queue;
+
+public class ColaIterator implements Iterator{
+     private Queue<Pizza> cola;
+     
+     public ColaIterator(Queue<Pizza> cola){
+         this.cola=cola;
+     }
+     
+    @Override
+    public boolean haySiguiente() {
+     return !cola.isEmpty();
+    }
+
+    @Override
+    public Pizza siguiente() {
+           if (!haySiguiente()) {
+            throw new NoSuchElementException("No hay más pizzas disponibles.");
+        }
+        return cola.poll();  
+    }  
+}
+
+import java.util.*;
+
+public class AscendenteIterator implements Iterator {
+    private List<Pizza> pizzas;
+    private int position = 0;
+
+    public AscendenteIterator(List<Pizza> pizzas) {
+        this.pizzas = pizzas;
+        Collections.sort(this.pizzas, Comparator.comparingDouble(Pizza::getPrecio));
+    }
+
+    @Override
+    public boolean haySiguiente() {
+        return position < pizzas.size();
+    }
+
+    @Override
+    public Pizza siguiente() {
+        if (!haySiguiente()) {
+            throw new NoSuchElementException("No hay más pizzas disponibles.");
+        }
+        return pizzas.get(position++);
+    }
+}
+
+import java.util.*;
+
+public class DescendenteIterator implements Iterator{
+    private List<Pizza> pizzas;
+    private int posicion=0;
+    
+    public DescendenteIterator(List<Pizza> pizzas) {
+        this.pizzas = pizzas;
+        Collections.sort(this.pizzas, Collections.reverseOrder(Comparator.comparingDouble(Pizza::getPrecio)));
+    }
+
+    @Override
+    public boolean haySiguiente() {
+        return posicion < pizzas.size();
+    }
+
+    @Override
+    public Pizza siguiente() {
+        if (!haySiguiente()) {
+            throw new NoSuchElementException("No hay más pizzas disponibles.");
+        }
+        return pizzas.get(posicion++);
+    }   
+}
+
+public interface PedidoSolicitud {
+    void ejecutar();
+}
+
+public class PedidoDomicilio implements PedidoSolicitud{
+    private Pedido pedido;
+    
+    public PedidoDomicilio(Pedido pedido){
+        this.pedido=pedido;
+    }
+
+    @Override
+    public void ejecutar() {
+        System.out.println("Enviando pedido a la cocina para entregar a domicilio: "+pedido.getPizza());
+    }
+    
+}
+
+public class PedidoMesa implements PedidoSolicitud{
+    private Pedido pedido;
+    
+    public void PedidoMesa(Pedido pedido){
+        this.pedido=pedido;
+    }
+    
+    @Override
+    public void ejecutar(){
+        System.out.println("Enviando pedido a cocina para servir en mesa: "+pedido.getPizza());
+    }
+}
+
+public class PedidoRecoger implements PedidoSolicitud{
+   private Pedido pedido;
+   
+   public void PedidoRecoger(Pedido pedido){
+       this.pedido=pedido;
+   }
+
+    @Override
+    public void ejecutar() {
+        System.out.println("Enviando pedido a cocina para recoger: "+pedido.getPizza());
+    }
+}
